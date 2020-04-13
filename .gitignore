@@ -1,0 +1,3 @@
+includes/psl-config.php
+*.ini
+**error_log
