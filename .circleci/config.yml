@@ -1,0 +1,18 @@
+version: 2.0
+jobs:
+  build:
+    machine:
+      image: circleci/classic:latest
+    branches:
+          only:
+            - master
+    steps:
+      - run:
+          name: Install LFTP
+          command: |
+            sudo apt-get update;
+            sudo apt-get install lftp;
+      - checkout
+      - run:
+          name: Mirror Via FTP
+          command: lftp ftp://${username}:${password}@${hostname} -e "set ftp:ssl-allow no; mirror -v -R source .; quit"
