@@ -1,6 +1,6 @@
 <?php
 
-$input = explode("?", substr(filter_var($_SERVER['REQUEST_URI'], FILTER_SANITIZE_STRING), 1));
+$input = explode("/", substr(filter_var($_SERVER['REQUEST_URI'], FILTER_SANITIZE_STRING), 1));
 $code = $input[0];
 if($code === ''){
 	echo 'hcawn.com is a URL shortener website and nothing else, go away please.';
@@ -8,12 +8,7 @@ if($code === ''){
 elseif($code === 'admin'){
 	echo 'admin mode entered';
 	include('includes/dbconnect.php');
-	################ get codes ################
-	$sql = "SELECT * FROM `links` ORDER BY entry;";
-	if ( ! $query = mysqli_query($connection, $sql) ) {
-		echo mysqli_error($connection);
-		die;
-	};
+
 	?>
 	<form class="addNew" action="" method="post" style="text-align: center;" >
 		<input type="text" name="code" placeholder="code" tabindex="1">
@@ -29,17 +24,37 @@ elseif($code === 'admin'){
 		echo $insertsql;
 		if (!mysqli_multi_query($connection, $insertsql)) {
 			echo mysqli_error($connection);
-			die;				
+			die;
 		};
 	};
+	################ get codes ################
+	$sql = "SELECT * FROM `links` ORDER BY entry;";
+	if ( ! $query = mysqli_query($connection, $sql) ) {
+		echo mysqli_error($connection);
+		die;
+	};
 	$list = array();
-	echo "<table><tbody><tr><td>entry</td><td>code</td><td>URL</td><td>created</td><td>modified</td></tr><tr><td colspan=5 style='border-bottom: 1px solid #000;'></td></tr>";
+	echo "<table><tbody><tr><td>entry</td><td>code</td><td>URL</td><td>created</td><td>modified</td></tr><tr><td colspan=6 style='border-bottom: 1px solid #000;'></td></tr>";
 	for ($x = 0; $x < mysqli_num_rows($query); $x++) {
 		$list[] = mysqli_fetch_array($query, MYSQLI_ASSOC);
 		echo "<tr>";
-		echo "<tr><td>".$list[$x]['entry']."</td><td>".$list[$x]['code']."</td><td>".$list[$x]['URL']."</td><td>".$list[$x]['created']."</td><td>".$list[$x]['modified']."</td>";
-		echo "";
+			echo "<td>".$list[$x]['entry']."</td><td>".$list[$x]['code']."</td><td>".$list[$x]['URL']."</td><td>".$list[$x]['created']."</td><td>".$list[$x]['modified']."</td>";
+			echo '<td><form action="" method="post"><input type="submit" name="'.$list[$x]['entry'].'Delete" value="Delete" /></form></td>';
+			if(isset($_POST[$list[$x]['entry'].'Delete'])){
+				echo "<td>DELETED</td>";
+				$insertsql = "DELETE FROM `links` WHERE entry = ".$list[$x]['entry'].";";
+				echo $insertsql;
+				if (!mysqli_multi_query($connection, $insertsql)) {
+					echo mysqli_error($connection);
+					die;				
+				};
+			};
 		echo "</tr>";
+
+
+
+
+
 	};
 	echo "</tbody></table>";
 	################ get codes ################
